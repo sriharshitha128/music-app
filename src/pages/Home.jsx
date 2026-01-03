@@ -1,54 +1,31 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchSongs, playSong, filterGenre, toggleTheme } from "../redux/musicSlice";
+import React from "react";
 import SongCard from "../components/SongCard";
-import Sidebar from "../components/Sidebar";
-import TopPlay from "../components/TopPlay";
-import SongDetails from "./SongDetails";  // relative to Home.jsx
+import SongDetails from "./SongDetails";
+import useStore from "../store/useStore";
 
 export default function Home() {
-  const dispatch = useDispatch();
-  const { filteredSongs, isLoading, error, currentSong } = useSelector((state) => state.music);
-  const [detailsSong, setDetailsSong] = useState(null);
+  const { favoriteGenre } = useStore();
 
-  useEffect(() => {
-    dispatch(fetchSongs());
-  }, [dispatch]);
+  const songs = [
+    { title: "Song 1", artist: "Artist A", genre: "Pop" },
+    { title: "Song 2", artist: "Artist B", genre: "Rock" },
+    { title: "Song 3", artist: "Artist C", genre: "Pop" },
+    { title: "Song 4", artist: "Artist D", genre: "Jazz" },
+  ];
+
+  const filtered = favoriteGenre
+    ? songs.filter((s) => s.genre === favoriteGenre)
+    : songs;
 
   return (
-    <div style={{ display: "flex" }}>
-      <Sidebar />
-      <div style={{ flex: 1, padding: "20px" }}>
-        <h1>🎵 Music App</h1>
-        <button onClick={() => dispatch(toggleTheme())}>Toggle Theme</button>
-
-        <div style={{ marginTop: "10px" }}>
-          <label>Filter by Genre: </label>
-          <select onChange={(e) => dispatch(filterGenre(e.target.value))}>
-            <option value="All">All</option>
-            <option value="Pop">Pop</option>
-            <option value="Rock">Rock</option>
-            <option value="Jazz">Jazz</option>
-          </select>
-        </div>
-
-        {isLoading && <p>Loading songs...</p>}
-        {error && <p>Error: {error}</p>}
-
-        <div style={{ marginTop: "10px" }}>
-          {filteredSongs.map((song) => (
-            <SongCard
-              key={song.id}
-              song={song}
-              onPlay={() => dispatch(playSong(song))}
-              onDetails={() => setDetailsSong(song)}
-            />
-          ))}
-        </div>
-
-        <TopPlay song={currentSong} />
-        {detailsSong && <SongDetails song={detailsSong} onClose={() => setDetailsSong(null)} />}
+    <div>
+      <h1 className="text-2xl font-bold mb-4">Home</h1>
+      <div>
+        {filtered.map((song) => (
+          <SongCard key={song.title} song={song} />
+        ))}
       </div>
+      <SongDetails />
     </div>
   );
 }
